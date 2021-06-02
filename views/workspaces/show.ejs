@@ -1,0 +1,93 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Current workspace: <%=workspace.name%></h1>
+<p>Workspace Id: <%= workspace._id %></p>
+<hr>
+<h2>Documents:</h2>
+<form action="" method="POST">
+    <input type="text" name="workspace-doc" placeholder="Create a document">
+    <textarea name="content" cols="30" rows="2"></textarea>
+    <button>Create</button>
+</form>
+<ul>
+<% for (let doc of workspace.documents) { %>
+    <li><h3>Name: <%= doc.name %></h3>
+        <p>Id: <%= doc._id %></p>
+        <p>Content: <%= doc.content %></p>
+    </li>
+<% } %> 
+</ul>
+<hr>
+<h2>Directories:</h2>
+<form action="" method="POST">
+    <input type="text" name="workspace-dir" placeholder="Create a directory">
+    <button>Create</button>
+</form>
+<ul>
+<% for (let dir of workspace.directories) { %>
+    <li><h3>Dir name: <%= dir.name %>, id: <%= dir._id %></h3>
+    <form action="" method="POST">
+        <input type="text" name="dir-of-dir[<%=dir._id%>]" placeholder="Create a directory">
+        <button>Create</button>
+    </form>
+    <form action="" method="POST">
+        <input type="text" name="doc-of-dir[<%=dir._id%>]" placeholder="Create a document">
+        <textarea name="content" cols="30" rows="1"></textarea>
+        <button>Create</button>
+    </form>
+    <!-- Function that recursively prints documents and subdirectories, argument is a Directory -->
+    <% const printDir = (dir) => { %>
+        <!-- print out the Directory's documents -->
+        <% if (dir.documents.length) { %>
+            <ul>
+            <% for (let doc of dir.documents) { %>
+                <li>
+                    <h5>Name: <%= doc.name %></h5>
+                    <p>Id: <%= doc._id %></p>
+                    <p>Content: <%= doc.content %></p>
+                </li>
+            <% } %>
+            </ul>
+        <% } %>
+
+        <!-- print out the Directory's subdirectories -->
+        <% if (dir.subdirectories.length) { %>
+            <h5>Subdirectories of <%= dir.name %>:</h5>
+            <!-- iterating over the subdirectories -->
+            <% for (let subdir of dir.subdirectories) { %>
+                <!-- print out the documents in each subdirectory -->
+                <% if (subdir.documents.length) { %>
+                    <ul>
+                    <% for (let subdirDoc of subdir.documents) { %>
+                        <li>
+                            <h5>Name: <%= subdirDoc.name %></h5>
+                            <p>Id: <%= subdirDoc._id %></p>
+                            <p>Content: <%= subdirDoc.content %></p>
+                        </li>
+                    <% } %>
+                    </ul>
+                <% } %>
+                <!-- print out the subdirectories (Which are going to be of model Directory) of each subdirectory -->
+                <% if (subdir.subdirectories.length) { %>
+                    <ul>
+                    <% for (let dir of subdir.subdirectories) { %>
+                        <li>
+                            <h5>Name: <%= dir.name %></h5>
+                            <p>Id: <%= dir._id %></p>
+                            <form action="" method="POST">
+                                <input type="text" name="dir-of-subdir[<%=dir._id%>]" placeholder="Create a directory">
+                                <button>Create</button>
+                            </form>
+                            <% printDir(dir) %>
+                        </li>
+                    <% } %>
+                    </ul>
+                <% } %> 
+            <% } %>
+        <% } %>
+    <% } %>
+
+    <% printDir(dir) %> 
+    </li>
+<% } %>  
+</ul>
