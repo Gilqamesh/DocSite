@@ -98,7 +98,23 @@ const seedDB = async () => {
     await author.save();
 }
 
-seedDB().then(() => {
-    console.log("Successfully seeded DB");
+const deleteDB = async () => {
+    await Document.deleteMany({});
+    await Directory.deleteMany({});
+    await Workspace.deleteMany({});
+    await User.deleteMany({});
+    await Subdirectory.deleteMany({});
+    await new Workspace({
+        name: "First workspace"
+    }).save();
+}
+
+// seedDB().then(() => {
+//     console.log("Successfully seeded DB");
+//     mongoose.connection.close();
+// })
+
+deleteDB().then(() => {
+    console.log("Successfully deleted DB");
     mongoose.connection.close();
 })

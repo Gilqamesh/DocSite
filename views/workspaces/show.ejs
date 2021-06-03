@@ -1,93 +1,195 @@
 <% layout("layouts/boilerplate") %>
+<link rel="stylesheet" href="/stylesheets/showWorkspace.css">
+
+<% let toggleId = -1; %>
 
 <h1>Current workspace: <%=workspace.name%></h1>
 <p>Workspace Id: <%= workspace._id %></p>
 <hr>
-<h2>Documents:</h2>
-<form action="" method="POST">
-    <input type="text" name="workspace-doc" placeholder="Create a document">
-    <textarea name="content" cols="30" rows="2"></textarea>
-    <button>Create</button>
-</form>
-<ul>
-<% for (let doc of workspace.documents) { %>
-    <li><h3>Name: <%= doc.name %></h3>
-        <p>Id: <%= doc._id %></p>
-        <p>Content: <%= doc.content %></p>
-    </li>
-<% } %> 
-</ul>
-<hr>
-<h2>Directories:</h2>
-<form action="" method="POST">
-    <input type="text" name="workspace-dir" placeholder="Create a directory">
-    <button>Create</button>
-</form>
-<ul>
-<% for (let dir of workspace.directories) { %>
-    <li><h3>Dir name: <%= dir.name %>, id: <%= dir._id %></h3>
-    <form action="" method="POST">
-        <input type="text" name="dir-of-dir[<%=dir._id%>]" placeholder="Create a directory">
-        <button>Create</button>
-    </form>
-    <form action="" method="POST">
-        <input type="text" name="doc-of-dir[<%=dir._id%>]" placeholder="Create a document">
-        <textarea name="content" cols="30" rows="1"></textarea>
-        <button>Create</button>
-    </form>
-    <!-- Function that recursively prints documents and subdirectories, argument is a Directory -->
-    <% const printDir = (dir) => { %>
-        <!-- print out the Directory's documents -->
-        <% if (dir.documents.length) { %>
-            <ul>
-            <% for (let doc of dir.documents) { %>
-                <li>
-                    <h5>Name: <%= doc.name %></h5>
+<div class="card">
+    <div class="card-body">
+        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+            <h2 class="card-title">Workspace Documents:</h2>
+        </button>
+        <div class="collapse" id="divId-<%=toggleId%>">
+            <form action="" method="POST" class="mb-3">
+                <input type="text" name="workspace-doc" placeholder="Document name" class="form-control">
+                <textarea name="content" cols="30" rows="1" class="form-control"></textarea>
+                <button class="btn btn-secondary">Create doc</button>
+            </form>
+        
+            <ul class="list-group mt-3"> 
+            <% for (let doc of workspace.documents) { %>
+                <li class="list-group-item doc-class"><h3>Doc name: <%= doc.name %></h3>
                     <p>Id: <%= doc._id %></p>
                     <p>Content: <%= doc.content %></p>
                 </li>
-            <% } %>
+            <% } %> 
             </ul>
-        <% } %>
+        </div>
+    </div>
+</div>
+<hr>
+<% let calls = 0; %>
+<div class="card">
+    <div class="card-body">
+        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+            <h2 class="card-title">Workspace Directories:</h2>
+        </button>
+        <div class="collapse" id="divId-<%=toggleId%>">
+            <form action="" method="POST" class="mb-3">
+                <input type="text" name="workspace-dir" placeholder="Create a directory" class="form-control">
+                <button class="btn btn-secondary">Create dir</button>
+            </form>
+            <ul class="list-group mt-3">
+            <% workspace.directories.forEach((dir, i) => { %>
+                <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                    <h3>Workspace Dir name: <%= dir.name %>, id: <%= dir._id %></h3>
+                </button>
+                <div class="collapse" id="divId-<%=toggleId%>">
+                    <li class="list-group-item">
+                    <form action="" method="POST" class="mb-3">
+                        <input type="text" name="dir-of-dir[<%=dir._id%>]" placeholder="Create a directory" class="form-control">
+                        <button class="btn btn-secondary">Create dir</button>
+                    </form>
+                    <form action="" method="POST" class="mb-3">
+                        <input type="text" name="doc-of-dir[<%=dir._id%>]" placeholder="Document name" class="form-control">
+                        <textarea name="content" cols="30" rows="1" class="form-control"></textarea>
+                        <button class="btn btn-secondary">Create doc</button>
+                    </form>
+                    <!-- Function that recursively prints documents and subdirectories, argument is a Directory -->
+                    <% const printDir = (dir) => { %>
+                        <!-- print out the Directory's (of type Directory) documents -->
+                        <% if (dir.documents.length) { %>
+                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                <h4>Documents of <%= dir._id %>:</h4>
+                            </button>
+                            <div class="collapse" id="divId-<%=toggleId%>">
+                                <ul class="list-group mt-3">
+                                <% for (let doc of dir.documents) { %>
+                                    <li class="list-group-item doc-class">
+                                        <h5>Name: <%= doc.name %></h5>
+                                        <p>Id: <%= doc._id %></p>
+                                        <p>Content: <%= doc.content %></p>
+                                        <p>Parent dir id: <%= dir._id %></p>
+                                    </li>
+                                <% } %>
+                                </ul>
+                            </div>
+                        <% } %>
 
-        <!-- print out the Directory's subdirectories -->
-        <% if (dir.subdirectories.length) { %>
-            <h5>Subdirectories of <%= dir.name %>:</h5>
-            <!-- iterating over the subdirectories -->
-            <% for (let subdir of dir.subdirectories) { %>
-                <!-- print out the documents in each subdirectory -->
-                <% if (subdir.documents.length) { %>
-                    <ul>
-                    <% for (let subdirDoc of subdir.documents) { %>
-                        <li>
-                            <h5>Name: <%= subdirDoc.name %></h5>
-                            <p>Id: <%= subdirDoc._id %></p>
-                            <p>Content: <%= subdirDoc.content %></p>
-                        </li>
+                        <!-- print out the Directory's (of type Directory) subdirectories (of type Subdirectory)-->
+                        <% if (dir.subdirectories.length) { %>
+                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                <h4>Directories of <%= dir._id%>:</h4>
+                            </button>
+                            <div class="collapse" id="divId-<%=toggleId%>">
+                                <!-- iterating over the subdirectories (of type Subdirectory) -->
+                                <ul class="list-group mt-3">
+                                <% dir.subdirectories.forEach((subdir, j) => { %>
+                                    <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                        <h4> Dir id: <%= subdir._id %>, parent dir id: <%= dir._id %></h4>
+                                    </button>
+                                    <div class="collapse" id="divId-<%=toggleId%>">
+                                        <li class="list-group-item">
+                                        <!-- create new directory (of type Directory) under subdir -->
+                                        <form action="" method="POST" class="mb-3">
+                                            <input type="text" name="dir-of-subdir[<%=subdir._id%>]" placeholder="Create a directory for <%= subdir._id %>" class="form-control">
+                                            <button class="btn btn-secondary">Create dir</button>
+                                        </form>
+                                        <form action="" method="POST" class="mb-3">
+                                            <input type="text" name="doc-of-subdir[<%= subdir._id %>]" placeholder="Create a document for <%= subdir._id %>" class="form-control">
+                                            <textarea name="content" cols="30" rows="1" class="form-control"></textarea>
+                                            <button class="btn btn-secondary">Create doc</button>
+                                        </form>
+                                        <!-- print out the documents in each subdirectory -->
+                                        <% if (subdir.documents.length) { %>
+                                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                <h4>Documents:</h4>
+                                            </button>
+                                            <div class="collapse" id="divId-<%=toggleId%>">
+                                                <ul class="list-group mt-3">
+                                                <% for (let subdirDoc of subdir.documents) { %>
+                                                    <li class="list-group-item doc-class">
+                                                        <h5><%= subdirDoc.name %></h5>
+                                                        <p>Id: <%= subdirDoc._id %></p>
+                                                        <p>Content: <%= subdirDoc.content %></p>
+                                                        <p>Parent dir id: <%= subdir._id %></p>
+                                                    </li>
+                                                <% } %>
+                                                </ul>
+                                            </div>
+                                        <% } %>
+                                        <!-- print out the subdirectories (Which are going to be of model Directory) of each subdirectory -->
+                                        <% if (subdir.subdirectories.length) { %>
+                                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                <h4> Subdirectories of <%= subdir._id %></h4>
+                                            </button>
+                                            <div class="collapse" id="divId-<%=toggleId%>">
+                                                <ul class="list-group mt-3">
+                                                <% subdir.subdirectories.forEach((dir, k) => { %>
+                                                    <li class="list-group-item">
+                                                        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                            <h5>Dir name: <%= dir.name %></h5>
+                                                        </button>
+                                                        <div class="collapse" id="divId-<%=toggleId%>">
+                                                            <p>Id: <%= dir._id %></p>
+                                                            <p>Parent Id: <%= subdir._id %></p>
+                                                            <form action="" method="POST" class="mb-3">
+                                                                <input type="text" name="dir-of-dir[<%=dir._id%>]" placeholder="Create a directory for <%= dir._id %>" class="form-control">
+                                                                <button class="btn btn-secondary">Create dir</button>
+                                                            </form>
+                                                            <form action="" method="POST" class="mb-3">
+                                                                <input type="text" name="doc-of-dir[<%= dir._id %>]" placeholder="Create a document for <%= dir._id %>" class="form-control">
+                                                                <textarea name="content" cols="30" rows="1" class="form-control"></textarea>
+                                                                <button class="btn btn-secondary">Create doc</button>
+                                                            </form>
+                                                            <% printDir(dir) %>
+                                                        </div>
+                                                    </li>
+                                                <% }) %>
+                                                </ul>
+                                            </div>
+                                        <% } %> 
+                                        </li>
+                                    </div>
+                                <% }) %>
+                                </ul>
+                            </div>
+                        <% } %>
                     <% } %>
-                    </ul>
-                <% } %>
-                <!-- print out the subdirectories (Which are going to be of model Directory) of each subdirectory -->
-                <% if (subdir.subdirectories.length) { %>
-                    <ul>
-                    <% for (let dir of subdir.subdirectories) { %>
-                        <li>
-                            <h5>Name: <%= dir.name %></h5>
-                            <p>Id: <%= dir._id %></p>
-                            <form action="" method="POST">
-                                <input type="text" name="dir-of-subdir[<%=dir._id%>]" placeholder="Create a directory">
-                                <button>Create</button>
-                            </form>
-                            <% printDir(dir) %>
-                        </li>
-                    <% } %>
-                    </ul>
-                <% } %> 
-            <% } %>
-        <% } %>
-    <% } %>
+                    <% printDir(dir) %> 
+                    </li>
+                </div>
+            <% }) %>  
+            </ul>
+        </div>
+    <div class="card-body">
+<div class="card">
 
-    <% printDir(dir) %> 
-    </li>
-<% } %>  
-</ul>
+<script>
+    if (!document.cookie) {
+        for (let i = 0; i <= <%=toggleId%>; i++) {
+            const btn = document.getElementById(`toggleId-${i}`);
+            document.cookie = `toggle${i}=false; `;
+        }
+    }
+    window.onload = () => {
+        for (let i = 0; i <= <%=toggleId%>; i++) {
+            const div = document.getElementById(`divId-${i}`);
+            const button = document.getElementById(`toggleId-${i}`);
+            const state = document.cookie.includes(`toggle${i}=true`);
+            button.ariaExpanded = state ? "true" : "false";
+            button.setAttribute("aria-expanded", `${state ? "true" : "false"}`);
+            if (state) {
+                div.classList.add("show");
+            } else {
+                div.classList.remove("show");
+            }
+        }
+    }
+    const toggleCookie = (toggleId) => {
+        const button = document.getElementById(`toggleId-${toggleId}`);
+        document.cookie = `toggle${toggleId}=${button.ariaExpanded === "true" ? "true" : "false"}`;
+    }
+</script>

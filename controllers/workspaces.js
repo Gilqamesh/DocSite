@@ -24,7 +24,6 @@ module.exports = {
             return next(new ExpressError("Invalid Id", 400));
         }
         const input = req.body;
-        console.log(input);
         let workspace = await Workspace.findById(id);
         if (input.hasOwnProperty("workspace-doc")) {
             const docName = input["workspace-doc"];
@@ -64,11 +63,29 @@ module.exports = {
             parentDir.documents.push(newDoc);
             await newDoc.save();
             await parentDir.save();
-        } 
-        // else if (input.hasOwnProperty("dir-of-subdir")) {
-        //     const dirName = Object.values(input["dir-of-subdir"])[0];
-        //     console.log(dirName);
-        // }
+        } else if (input.hasOwnProperty("dir-of-subdir")) {
+            const dirName = Object.values(input["dir-of-subdir"])[0];
+            const dir = new Directory({
+                name: dirName
+            });
+            console.log(Object.keys(input["dir-of-subdir"])[0]);
+            const parentDir = await Subdirectory.findById(Object.keys(input["dir-of-subdir"])[0]);
+            console.log(parentDir);
+            parentDir.subdirectories.push(dir);
+            await dir.save();
+            await parentDir.save();
+        } else if (input.hasOwnProperty("doc-of-subdir")) {
+            const docName = Object.values(input["doc-of-subdir"])[0];
+            const docContent = input["content"];
+            const newDoc = new Document({
+                name: docName,
+                content: docContent
+            });
+            const parentDir = await Subdirectory.findById(Object.keys(input["doc-of-subdir"])[0]);
+            parentDir.documents.push(newDoc);
+            await newDoc.save();
+            await parentDir.save();
+        }
         workspace = await Workspace.findById(id);
         await populateWorkspace(workspace, id);
         res.render("workspaces/show", { workspace });
