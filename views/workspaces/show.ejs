@@ -4,6 +4,8 @@
 <% let toggleId = -1; %>
 
 <h1>Current workspace: <%=workspace.name%></h1>
+<button onclick="showAll()">Show all</button>
+<button onclick="closeAll()">Close all</button>
 <p>Workspace Id: <%= workspace._id %></p>
 <hr>
 <div class="card">
@@ -191,5 +193,27 @@
     const toggleCookie = (toggleId) => {
         const button = document.getElementById(`toggleId-${toggleId}`);
         document.cookie = `toggle${toggleId}=${button.ariaExpanded === "true" ? "true" : "false"}`;
+    }
+    const showAll = () => {
+        for (let i = 0; i <= <%=toggleId%>; i++) {
+            const div = document.getElementById(`divId-${i}`);
+            const button = document.getElementById(`toggleId-${i}`);
+            button.setAttribute("aria-expanded", "true");
+            div.classList.add("show");
+            document.cookie = `toggle${i}=true`
+        }
+    }
+    const closeAll = () => {
+        for (let i = 0; i <= <%=toggleId%>; i++) {
+            const div = document.getElementById(`divId-${i}`);
+            const button = document.getElementById(`toggleId-${i}`);
+            button.setAttribute("aria-expanded", "false");
+            div.classList.remove("show");
+            document.cookie = `toggle${i}=false`
+        }
+    }
+    // Blocks the popup on page refresh for form resubmission
+    if (window.history.replaceState) {
+        window.history.replaceState( null, null, window.location.href );
     }
 </script>

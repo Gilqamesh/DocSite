@@ -9,20 +9,21 @@ const ejs = require('ejs');
 const ObjectID = require('mongodb').ObjectID;
 
 module.exports = {
-    renderWorkspace: catchAsync(async (req, res, next) => {
+    isValidWorkspace: (req, res, next) => {
         const { id } = req.params;
         if (!ObjectID.isValid(id)) {
             return next(new ExpressError("Invalid Id", 400));
         }
+        next();
+    },
+    renderWorkspace: catchAsync(async (req, res, next) => {
+        const { id } = req.params;
         const workspace = await Workspace.findById(id);
         await populateWorkspace(workspace, id);
         res.render("workspaces/show", { workspace });
     }),
     addToWorkspace: catchAsync(async (req, res, next) => {
         const { id } = req.params;
-        if (!ObjectID.isValid(id)) {
-            return next(new ExpressError("Invalid Id", 400));
-        }
         const input = req.body;
         let workspace = await Workspace.findById(id);
         if (input.hasOwnProperty("workspace-doc")) {
@@ -68,9 +69,7 @@ module.exports = {
             const dir = new Directory({
                 name: dirName
             });
-            console.log(Object.keys(input["dir-of-subdir"])[0]);
             const parentDir = await Subdirectory.findById(Object.keys(input["dir-of-subdir"])[0]);
-            console.log(parentDir);
             parentDir.subdirectories.push(dir);
             await dir.save();
             await parentDir.save();
@@ -86,9 +85,7 @@ module.exports = {
             await newDoc.save();
             await parentDir.save();
         }
-        workspace = await Workspace.findById(id);
-        await populateWorkspace(workspace, id);
-        res.render("workspaces/show", { workspace });
+        next();
     })
 }
 
