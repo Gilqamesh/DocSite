@@ -2,10 +2,6 @@
     background-color: rgb(255, 255, 255);
 }
 
-.doc-class {
-    background-color: rgb(98, 199, 98);
-}
-
 #contentTextArea {
     min-height: 76vh;
     resize: none;
@@ -28,6 +24,26 @@
 #menuContainer {
     height: 87vh;
     overflow-y: scroll;
+    /* background-color: grey;
+    color: white; */
+}
+
+#menuContainer button:not(.dontStyleBtn, #button-addon2) {
+    border: none;
+    height: 100%;
+    width: 100%;
+}
+
+#menu-container button.btn:active {
+    box-shadow: none !important;
+}
+#menu-container button.btn:focus {
+    box-shadow: none !important;
+}
+
+.list-group-item {
+    border: none;
+    padding: 0;
 }
 
 #menuContainer div {
@@ -47,4 +63,15 @@
 #menuContainer::-webkit-scrollbar-thumb {
   background-color: darkgrey;
   outline: 1px solid slategrey;
+}
+
+#button-addon2 {
+    width: 30%;
+    border: 1px solid rgb(196, 193, 193);
+}
+
+input.form-control {
+    width: 70%;
+    border: 1px solid rgb(196, 193, 193);
+    border-right: none;
 }
