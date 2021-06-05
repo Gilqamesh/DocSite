@@ -3,7 +3,7 @@
 }
 
 #contentTextArea {
-    min-height: 76vh;
+    min-height: 75.32vh;
     resize: none;
     overflow-y: scroll;
 }
@@ -32,13 +32,6 @@
     border: none;
     height: 100%;
     width: 100%;
-}
-
-#menu-container button.btn:active {
-    box-shadow: none !important;
-}
-#menu-container button.btn:focus {
-    box-shadow: none !important;
 }
 
 .list-group-item {

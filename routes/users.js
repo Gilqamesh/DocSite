@@ -14,4 +14,7 @@ router.route("/login")
 
 router.get("/logout", isLoggedIn, users.logout);
 
+router.route("/:id")
+    .get(isLoggedIn, users.showWorkspaces)
+
 module.exports = router;

@@ -2,6 +2,7 @@ const catchAsync = require("../utils/catchAsync");
 const User = require("../models/user");
 const ExpressError = require("../utils/ExpressError");
 const ejs = require('ejs');
+const Workspace = require("../models/workspace");
 
 module.exports = {
     renderLogin: (req, res) => {
@@ -11,7 +12,7 @@ module.exports = {
         req.flash("success", "Welcome back!");
         const redirectUrl = req.session.returnTo || "/";
         // deletes the returnTo property from the session
-        delete req.session.returnTo; 
+        delete req.session.returnTo;
         res.redirect(redirectUrl);
     },
     renderRegister: (req, res) => {
@@ -37,5 +38,10 @@ module.exports = {
         req.logout();
         req.flash("success", "Goodbye!");
         res.redirect("/");
-    }
+    },
+    showWorkspaces: catchAsync(async (req, res) => {
+        const { id } = req.params;
+        const workspaces = await Workspace.find().populate("author");
+        res.render("users/show", { id, workspaces });
+    })
 }

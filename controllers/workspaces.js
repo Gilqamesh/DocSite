@@ -3,9 +3,7 @@ const Workspace = require("../models/workspace");
 const Document = require("../models/document");
 const Directory = require("../models/directory");
 const Subdirectory = require("../models/subdirectory");
-const User = require("../models/user")
 const ExpressError = require("../utils/ExpressError");
-const ejs = require('ejs');
 const ObjectID = require('mongodb').ObjectID;
 const cloudinary = require("../cloudinary");
 const tmp = require("tmp");
@@ -30,17 +28,16 @@ module.exports = {
         res.render("workspaces/show", { workspace, currContent, currUrl, currFn });
     }),
     addToWorkspace: catchAsync(async (req, res, next) => {
-        const { id } = req.params;
         const input = req.body;
-        console.log(input);
         if (input.hasOwnProperty("docName")) {
             const docName = input["docName"];
             const tmpobj = tmp.fileSync();
             await fs.appendFile(tmpobj.name, " ", () => { });
             let url = "";
+            const workspace = await Workspace.findById(req.params.id);
             await cloudinary.cloudinary.uploader.upload(tmpobj.name, {
                 resource_type: "auto",
-                public_id: `docsite/${docName}`
+                public_id: `docsite/${req.user._id}/${workspace.name}/${docName}`
             }, (e, r) => {
                 url += r.url;
             });
@@ -77,7 +74,7 @@ module.exports = {
             let url = "";
             await cloudinary.cloudinary.uploader.upload(tmpobj.name, {
                 resource_type: "auto",
-                public_id: `docsite/${req.session.currFn}`
+                public_id: `docsite/${req.user._id}/${workspace.name}/${req.session.currFn}`
             }, (e, r) => {
                 url += r.url;
             });
@@ -124,6 +121,16 @@ module.exports = {
             await newDir.save();
         }
         next();
+    }),
+    newWorkspace: catchAsync(async (req, res, next) => {
+        const { name } = req.body;
+        console.log(req.user._id);
+        const workspace = new Workspace({
+            name,
+            author: req.user._id
+        });
+        await workspace.save();
+        res.redirect(`/${req.user._id}`);
     })
 }
 
