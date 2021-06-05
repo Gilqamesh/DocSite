@@ -66,7 +66,7 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
 // sanitize mongo to prevent db injections
-app.use(mongoSanitize());
+// app.use(mongoSanitize()); // doesn't work for urls for now
 
 // connect session
 app.use(session(sessionConfig));

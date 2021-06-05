@@ -7,6 +7,10 @@ const User = require("../models/user")
 const ExpressError = require("../utils/ExpressError");
 const ejs = require('ejs');
 const ObjectID = require('mongodb').ObjectID;
+const cloudinary = require("../cloudinary");
+const tmp = require("tmp");
+const fs = require("fs");
+const axios = require("axios");
 
 module.exports = {
     isValidWorkspace: (req, res, next) => {
@@ -20,70 +24,104 @@ module.exports = {
         const { id } = req.params;
         const workspace = await Workspace.findById(id);
         await populateWorkspace(workspace, id);
-        res.render("workspaces/show", { workspace });
+        const currContent = req.session.currContent || "";
+        const currUrl = req.session.currUrl;
+        const currFn = req.session.currFn || "No file opened";
+        res.render("workspaces/show", { workspace, currContent, currUrl, currFn });
     }),
     addToWorkspace: catchAsync(async (req, res, next) => {
         const { id } = req.params;
         const input = req.body;
-        let workspace = await Workspace.findById(id);
-        if (input.hasOwnProperty("workspace-doc")) {
-            const docName = input["workspace-doc"];
-            const docContent = input["content"];
+        console.log(input);
+        if (input.hasOwnProperty("docName")) {
+            const docName = input["docName"];
+            const tmpobj = tmp.fileSync();
+            await fs.appendFile(tmpobj.name, " ", () => { });
+            let url = "";
+            await cloudinary.cloudinary.uploader.upload(tmpobj.name, {
+                resource_type: "auto",
+                public_id: `docsite/${docName}`
+            }, (e, r) => {
+                url += r.url;
+            });
             const newDoc = new Document({
-                name: docName,
-                content: docContent
+                filename: docName,
+                url,
             });
-            workspace.documents.push(newDoc);
+            const parentId = input["id"];
+            switch (input["type"]) {
+                case "workspace":
+                    let workspace = await Workspace.findById(parentId);
+                    workspace.documents.push(newDoc);
+                    await workspace.save();
+                    break;
+                case "subdir":
+                    let subdir = await Subdirectory.findById(parentId);
+                    subdir.documents.push(newDoc);
+                    await subdir.save();
+                    break;
+                case "dir":
+                    let dir = await Directory.findById(parentId);
+                    dir.documents.push(newDoc);
+                    await dir.save();
+                    break;
+            }
             await newDoc.save();
-            await workspace.save();
-        } else if (input.hasOwnProperty("workspace-dir")) {
-            const dirName = input["workspace-dir"];
-            const newDir = new Directory({
-                name: dirName
+        } else if (input.hasOwnProperty("contentUpdate")) {
+            if (!req.session.currUrl) {
+                req.flash("error", "No file opened");
+                return next()
+            }
+            const tmpobj = tmp.fileSync();
+            await fs.appendFile(tmpobj.name, input["contentUpdate"], () => { });
+            let url = "";
+            await cloudinary.cloudinary.uploader.upload(tmpobj.name, {
+                resource_type: "auto",
+                public_id: `docsite/${req.session.currFn}`
+            }, (e, r) => {
+                url += r.url;
             });
-            workspace.directories.push(newDir);
+            req.session.currUrl = url;
+            req.session.currContent = input["contentUpdate"];
+            await Document.findOneAndUpdate({ filename: req.session.currFn }, { url });
+            req.flash("success", "Successfully saved file.");
+        } else if (input.hasOwnProperty("docUrl")) {
+            const docUrl = Object.keys(input["docUrl"])[0];
+            const content = await axios.get(docUrl);
+            req.session.currContent = content.data;
+            req.session.currUrl = docUrl;
+            req.session.currFn = (await Document.findOne({ url: docUrl })).filename;
+        } else if (input.hasOwnProperty("dirName")) {
+            const dirName = input["dirName"];
+            const parentId = input["id"];
+            let newDir;
+            switch (input["type"]) {
+                case "workspace":
+                    newDir = new Directory({
+                        name: dirName
+                    });
+                    let workspace = await Workspace.findById(parentId);
+                    workspace.directories.push(newDir);
+                    await workspace.save();
+                    break;
+                case "dir":
+                    newDir = new Directory({
+                        name: dirName
+                    });
+                    let subdir = await Subdirectory.findById(parentId);
+                    subdir.subdirectories.push(newDir);
+                    await subdir.save();
+                    break;
+                case "subdir":
+                    newDir = new Subdirectory({
+                        name: dirName
+                    });
+                    let dir = await Directory.findById(parentId);
+                    dir.subdirectories.push(newDir);
+                    await dir.save();
+                    break;
+            }
             await newDir.save();
-            await workspace.save();
-        } else if (input.hasOwnProperty("dir-of-dir")) {
-            const subDirName = Object.values(input["dir-of-dir"])[0];
-            const subDir = new Subdirectory({
-                name: subDirName
-            });
-            const parentDir = await Directory.findById(Object.keys(input["dir-of-dir"])[0]);
-            parentDir.subdirectories.push(subDir);
-            await subDir.save();
-            await parentDir.save();
-        } else if (input.hasOwnProperty("doc-of-dir")) {
-            const docName = Object.values(input["doc-of-dir"])[0];
-            const docContent = input["content"];
-            const newDoc = new Document({
-                name: docName,
-                content: docContent
-            });
-            const parentDir = await Directory.findById(Object.keys(input["doc-of-dir"])[0]);
-            parentDir.documents.push(newDoc);
-            await newDoc.save();
-            await parentDir.save();
-        } else if (input.hasOwnProperty("dir-of-subdir")) {
-            const dirName = Object.values(input["dir-of-subdir"])[0];
-            const dir = new Directory({
-                name: dirName
-            });
-            const parentDir = await Subdirectory.findById(Object.keys(input["dir-of-subdir"])[0]);
-            parentDir.subdirectories.push(dir);
-            await dir.save();
-            await parentDir.save();
-        } else if (input.hasOwnProperty("doc-of-subdir")) {
-            const docName = Object.values(input["doc-of-subdir"])[0];
-            const docContent = input["content"];
-            const newDoc = new Document({
-                name: docName,
-                content: docContent
-            });
-            const parentDir = await Subdirectory.findById(Object.keys(input["doc-of-subdir"])[0]);
-            parentDir.documents.push(newDoc);
-            await newDoc.save();
-            await parentDir.save();
         }
         next();
     })

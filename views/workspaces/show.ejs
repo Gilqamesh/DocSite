@@ -3,171 +3,238 @@
 
 <% let toggleId = -1; %>
 
-<h1>Current workspace: <%=workspace.name%></h1>
-<button onclick="showAll()">Show all</button>
-<button onclick="closeAll()">Close all</button>
-<p>Workspace Id: <%= workspace._id %></p>
-<hr>
-<div class="card">
-    <div class="card-body">
-        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-            <h2 class="card-title">Workspace Documents:</h2>
-        </button>
-        <div class="collapse" id="divId-<%=toggleId%>">
-            <form action="" method="POST" class="mb-3">
-                <input type="text" name="workspace-doc" placeholder="Document name" class="form-control">
-                <textarea name="content" cols="30" rows="1" class="form-control"></textarea>
-                <button class="btn btn-secondary">Create doc</button>
-            </form>
-        
-            <ul class="list-group mt-3"> 
-            <% for (let doc of workspace.documents) { %>
-                <li class="list-group-item doc-class"><h3>Doc name: <%= doc.name %></h3>
-                    <p>Id: <%= doc._id %></p>
-                    <p>Content: <%= doc.content %></p>
-                </li>
-            <% } %> 
-            </ul>
-        </div>
-    </div>
-</div>
-<hr>
-<% let calls = 0; %>
-<div class="card">
-    <div class="card-body">
-        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-            <h2 class="card-title">Workspace Directories:</h2>
-        </button>
-        <div class="collapse" id="divId-<%=toggleId%>">
-            <form action="" method="POST" class="mb-3">
-                <input type="text" name="workspace-dir" placeholder="Create a directory" class="form-control">
-                <button class="btn btn-secondary">Create dir</button>
-            </form>
-            <ul class="list-group mt-3">
-            <% workspace.directories.forEach((dir, i) => { %>
-                <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                    <h3>Workspace Dir name: <%= dir.name %>, id: <%= dir._id %></h3>
-                </button>
+<div class="container-fluid">
+<div class="row align-items-start" id="wrapper">
+    <!-- Directories and Documents handler menu -->
+    <div class="col-2"  id="menuContainer">
+        <h1>Current workspace: <%=workspace.name%></h1>
+        <button onclick="showAll()">Show all</button>
+        <button onclick="closeAll()">Close all</button>
+        <p><%=workspace.name%></p>
+        <hr>
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                        <h2 class="card-title">Documents:</h2>
+                    </button>
+                </div>
                 <div class="collapse" id="divId-<%=toggleId%>">
-                    <li class="list-group-item">
-                    <form action="" method="POST" class="mb-3">
-                        <input type="text" name="dir-of-dir[<%=dir._id%>]" placeholder="Create a directory" class="form-control">
-                        <button class="btn btn-secondary">Create dir</button>
-                    </form>
-                    <form action="" method="POST" class="mb-3">
-                        <input type="text" name="doc-of-dir[<%=dir._id%>]" placeholder="Document name" class="form-control">
-                        <textarea name="content" cols="30" rows="1" class="form-control"></textarea>
-                        <button class="btn btn-secondary">Create doc</button>
-                    </form>
-                    <!-- Function that recursively prints documents and subdirectories, argument is a Directory -->
-                    <% const printDir = (dir) => { %>
-                        <!-- print out the Directory's (of type Directory) documents -->
-                        <% if (dir.documents.length) { %>
-                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                                <h4>Documents of <%= dir._id %>:</h4>
-                            </button>
-                            <div class="collapse" id="divId-<%=toggleId%>">
-                                <ul class="list-group mt-3">
-                                <% for (let doc of dir.documents) { %>
-                                    <li class="list-group-item doc-class">
-                                        <h5>Name: <%= doc.name %></h5>
-                                        <p>Id: <%= doc._id %></p>
-                                        <p>Content: <%= doc.content %></p>
-                                        <p>Parent dir id: <%= dir._id %></p>
-                                    </li>
-                                <% } %>
-                                </ul>
-                            </div>
-                        <% } %>
-
-                        <!-- print out the Directory's (of type Directory) subdirectories (of type Subdirectory)-->
-                        <% if (dir.subdirectories.length) { %>
-                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                                <h4>Directories of <%= dir._id%>:</h4>
-                            </button>
-                            <div class="collapse" id="divId-<%=toggleId%>">
-                                <!-- iterating over the subdirectories (of type Subdirectory) -->
-                                <ul class="list-group mt-3">
-                                <% dir.subdirectories.forEach((subdir, j) => { %>
-                                    <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                                        <h4> Dir id: <%= subdir._id %>, parent dir id: <%= dir._id %></h4>
-                                    </button>
-                                    <div class="collapse" id="divId-<%=toggleId%>">
-                                        <li class="list-group-item">
-                                        <!-- create new directory (of type Directory) under subdir -->
-                                        <form action="" method="POST" class="mb-3">
-                                            <input type="text" name="dir-of-subdir[<%=subdir._id%>]" placeholder="Create a directory for <%= subdir._id %>" class="form-control">
-                                            <button class="btn btn-secondary">Create dir</button>
-                                        </form>
-                                        <form action="" method="POST" class="mb-3">
-                                            <input type="text" name="doc-of-subdir[<%= subdir._id %>]" placeholder="Create a document for <%= subdir._id %>" class="form-control">
-                                            <textarea name="content" cols="30" rows="1" class="form-control"></textarea>
-                                            <button class="btn btn-secondary">Create doc</button>
-                                        </form>
-                                        <!-- print out the documents in each subdirectory -->
-                                        <% if (subdir.documents.length) { %>
-                                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                                                <h4>Documents:</h4>
+                    <div class="mb-3">
+                        <form action="" method="POST">
+                            <input id="docName-<%=toggleId%>" type="text" name="docName" placeholder="Document name" class="form-control">
+                            <input type="hidden" name="type" value="workspace">
+                            <input type="hidden" name="id" value="<%=workspace._id%>">
+                            <button class="btn">Create doc</button>
+                        </form>
+                    </div>
+                
+                    <ul class="list-group mt-3"> 
+                    <% for (let doc of workspace.documents) { %>
+                        <li class="list-group-item doc-class">
+                            <form action="" method="POST">
+                                <input name="docUrl[<%=doc.url%>]" class="btn" type="submit" value="<%= doc.filename %>">
+                            </form>
+                        </li>
+                    <% } %> 
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <% let calls = 0; %>
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                        <h2 class="card-title">Directories:</h2>
+                    </button>
+                </div>
+                <div class="collapse" id="divId-<%=toggleId%>">
+                    <div class="mb-3">
+                        <form action="" method="POST" class="mb-3">
+                            <input type="text" name="dirName" placeholder="Create a directory" class="form-control">
+                            <input type="hidden" name="type" value="workspace">
+                            <input type="hidden" name="id" value="<%=workspace._id%>">
+                            <button class="btn">Create dir</button>
+                        </form>
+                    </div>
+                    <ul class="list-group mt-3">
+                    <% workspace.directories.forEach(dir => { %>
+                        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                            <h3><%=dir.name%></h3>
+                        </button>
+                        <div class="collapse" id="divId-<%=toggleId%>">
+                            <li class="list-group-item">
+                            <!-- Function that recursively prints documents and subdirectories, argument is a Directory -->
+                            <% const printDir = dir => { %>
+                                <!-- print out the Directory's (of type Directory) documents -->
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                <h4 class="card-title">Documents</h4>
                                             </button>
-                                            <div class="collapse" id="divId-<%=toggleId%>">
+                                        </div>
+                                        <div class="collapse" id="divId-<%=toggleId%>">
+                                            <form action="" method="POST" class="mb-3">
+                                                <input type="text" name="docName" placeholder="Document name" class="form-control">
+                                                <input type="hidden" name="type" value="dir">
+                                                <input type="hidden" name="id" value="<%=dir._id%>">
+                                                <button class="btn">Create doc</button>
+                                            </form>
+                                            <% if (dir.documents.length) { %>
                                                 <ul class="list-group mt-3">
-                                                <% for (let subdirDoc of subdir.documents) { %>
+                                                <% for (let doc of dir.documents) { %>
                                                     <li class="list-group-item doc-class">
-                                                        <h5><%= subdirDoc.name %></h5>
-                                                        <p>Id: <%= subdirDoc._id %></p>
-                                                        <p>Content: <%= subdirDoc.content %></p>
-                                                        <p>Parent dir id: <%= subdir._id %></p>
+                                                        <form action="" method="POST">
+                                                            <input name="docUrl[<%=doc.url%>]" class="btn" type="submit" value="<%= doc.filename %>">
+                                                        </form>
                                                     </li>
                                                 <% } %>
                                                 </ul>
-                                            </div>
-                                        <% } %>
-                                        <!-- print out the subdirectories (Which are going to be of model Directory) of each subdirectory -->
-                                        <% if (subdir.subdirectories.length) { %>
-                                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                                                <h4> Subdirectories of <%= subdir._id %></h4>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <!-- print out the Directory's (of type Directory) subdirectories (of type Subdirectory)-->
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                <h4 class="card-text">Directories</h4>
                                             </button>
-                                            <div class="collapse" id="divId-<%=toggleId%>">
-                                                <ul class="list-group mt-3">
-                                                <% subdir.subdirectories.forEach((dir, k) => { %>
-                                                    <li class="list-group-item">
-                                                        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                                                            <h5>Dir name: <%= dir.name %></h5>
+                                        </div>
+                                        <div class="collapse" id="divId-<%=toggleId%>">
+                                            <form action="" method="POST" class="mb-3">
+                                                <input type="text" name="dirName" placeholder="Create a directory" class="form-control">
+                                                <input type="hidden" name="type" value="subdir">
+                                                <input type="hidden" name="id" value="<%=dir._id%>">
+                                                <button class="btn">Create dir</button>
+                                            </form>
+                                            <% if (dir.subdirectories.length) { %>
+                                                    <!-- iterating over the subdirectories (of type Subdirectory) -->
+                                                    <ul class="list-group mt-3">
+                                                    <% dir.subdirectories.forEach(subdir => { %>
+                                                        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                            <h4><%=subdir.name%></h4>
                                                         </button>
                                                         <div class="collapse" id="divId-<%=toggleId%>">
-                                                            <p>Id: <%= dir._id %></p>
-                                                            <p>Parent Id: <%= subdir._id %></p>
-                                                            <form action="" method="POST" class="mb-3">
-                                                                <input type="text" name="dir-of-dir[<%=dir._id%>]" placeholder="Create a directory for <%= dir._id %>" class="form-control">
-                                                                <button class="btn btn-secondary">Create dir</button>
-                                                            </form>
-                                                            <form action="" method="POST" class="mb-3">
-                                                                <input type="text" name="doc-of-dir[<%= dir._id %>]" placeholder="Create a document for <%= dir._id %>" class="form-control">
-                                                                <textarea name="content" cols="30" rows="1" class="form-control"></textarea>
-                                                                <button class="btn btn-secondary">Create doc</button>
-                                                            </form>
-                                                            <% printDir(dir) %>
+                                                            <li class="list-group-item">
+                                                            <!-- print out the documents in each subdirectory -->
+                                                            <div class="card">
+                                                                <div class="card-body">
+                                                                    <div class="mb-3">
+                                                                        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                                            <h4 class="card-text">Documents</h4>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="collapse" id="divId-<%=toggleId%>">
+                                                                        <form action="" method="POST" class="mb-3">
+                                                                            <input type="text" name="docName" placeholder="Create a document for <%= subdir._id %>" class="form-control">
+                                                                            <input type="hidden" name="type" value="subdir">
+                                                                            <input type="hidden" name="id" value="<%=subdir._id%>">
+                                                                            <button class="btn">Create doc</button>
+                                                                        </form>
+                                                                        <% if (subdir.documents.length) { %>
+                                                                                <ul class="list-group mt-3">
+                                                                                <% for (let doc of subdir.documents) { %>
+                                                                                    <li class="list-group-item doc-class">
+                                                                                        <form action="" method="POST">
+                                                                                            <input name="docUrl[<%=doc.url%>]" class="btn" type="submit" value="<%= doc.filename %>">
+                                                                                        </form>
+                                                                                    </li>
+                                                                                <% } %>
+                                                                                </ul>
+                                                                        <% } %>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <hr>
+                                                            <!-- print out the subdirectories (Which are going to be of model Directory) of each subdirectory -->
+                                                            <div class="card">
+                                                                <div class="card-body">
+                                                                    <div class="mb-3">
+                                                                        <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                                            <h4 class="card-text">Directories</h4>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="collapse" id="divId-<%=toggleId%>">
+                                                                        <!-- create new directory (of type Directory) under subdir -->
+                                                                        <form action="" method="POST" class="mb-3">
+                                                                            <input type="text" name="dirName" placeholder="Create a directory for <%= subdir.name %>" class="form-control">
+                                                                            <input type="hidden" name="type" value="dir">
+                                                                            <input type="hidden" name="id" value="<%=subdir._id%>">
+                                                                            <button class="btn">Create dir</button>
+                                                                        </form>
+                                                                        <% if (subdir.subdirectories.length) { %>
+                                                                            <ul class="list-group mt-3">
+                                                                            <% subdir.subdirectories.forEach(dir => { %>
+                                                                                <button id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                                                    <h5><%=dir.name%></h5>
+                                                                                </button>
+                                                                                <div class="collapse" id="divId-<%=toggleId%>">
+                                                                                    <li class="list-group-item">
+                                                                                        <% printDir(dir) %>
+                                                                                    </li>
+                                                                                </div>
+                                                                            <% }) %>
+                                                                            </ul>
+                                                                        <% } %> 
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            </li>
                                                         </div>
-                                                    </li>
-                                                <% }) %>
-                                                </ul>
-                                            </div>
-                                        <% } %> 
-                                        </li>
+                                                    <% }) %>
+                                                    </ul>
+                                            <% } %>
+                                        </div>
                                     </div>
-                                <% }) %>
-                                </ul>
-                            </div>
-                        <% } %>
-                    <% } %>
-                    <% printDir(dir) %> 
-                    </li>
+                                </div>
+                            <% } %>
+                            <% printDir(dir) %> 
+                            </li>
+                        </div>
+                    <% }) %>  
+                    </ul>
                 </div>
-            <% }) %>  
-            </ul>
+            </div>
         </div>
-    <div class="card-body">
-<div class="card">
+    </div>
+    <!-- Documentum content -->
+    <div class="col-8">
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title mb-3">
+                    <h1><%=currFn%></h1>
+                </div>
+                <div class="card-text mb-3">
+                    <form action="" method="POST">
+                        <textarea class="form-control mb-3" name="contentUpdate" id="contentTextArea"><%=currContent%></textarea>
+                        <button class="btn">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Haven't decided yet -->
+    <div class="col-2">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente nam exercitationem esse dignissimos neque magni dolorem dolor totam ratione cum voluptatem ab, minus, inventore tempore dolore rerum sequi libero in?
+        Cupiditate earum repellat consequuntur assumenda enim ipsam quo, alias vero debitis quis odit nostrum pariatur? Accusantium tempore incidunt, quaerat voluptates ad voluptatibus cum repellendus exercitationem saepe commodi ab distinctio ea.
+        Eum aliquam vitae ad iste! Quod quia voluptatibus, consequuntur eveniet quis dolore fugit, similique mollitia expedita adipisci sed illum impedit eos harum placeat, pariatur dicta illo iusto ratione et? Recusandae.
+        Harum enim voluptatem, animi dolorum id, aliquid eaque atque nihil explicabo facere non, eum fuga similique ipsum magnam alias sit magni quia eos doloremque tempora ipsa. Optio ad repellendus tempora.
+        Molestiae, at praesentium blanditiis amet soluta quibusdam libero ullam vitae excepturi, aliquam alias sequi repudiandae, vero voluptate a nesciunt ducimus harum perspiciatis rerum illum placeat eius itaque accusantium. Blanditiis, fuga?
+        Dolorum, sunt saepe, repudiandae libero aliquam sapiente ut facere, similique itaque natus numquam voluptate quibusdam? Omnis dicta nostrum nobis nihil, ab facilis possimus labore cum quo sunt aliquid veniam saepe.
+        Expedita corporis recusandae non quas maxime magni reprehenderit dolorem eveniet voluptates vel exercitationem sit fugit illum eaque, minima molestias earum cupiditate. Maxime magnam rem molestiae incidunt excepturi perferendis, dolores maiores.
+        Ullam quod corporis et adipisci ut magni nostrum voluptatum quis odio est, distinctio aperiam molestias rerum porro, at quia, ducimus voluptates placeat! Eius molestiae maxime tenetur, quo quasi neque enim.
+        Porro, fuga ipsam ratione, a autem exercitationem eum molestias omnis adipisci ab quod quo tempore deserunt accusamus similique commodi voluptatem dignissimos labore dolorem odio velit architecto quam tenetur. Quae, architecto.
+        Sequi quam enim cupiditate omnis, ipsum incidunt vitae, soluta suscipit nesciunt tenetur magnam tempora perspiciatis assumenda veniam impedit, eveniet numquam architecto nostrum amet similique voluptates. Animi voluptatum a id corrupti?
+    </div>
+</div>
+</div>
 
 <script>
     if (!document.cookie) {

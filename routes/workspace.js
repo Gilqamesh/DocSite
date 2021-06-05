@@ -4,7 +4,7 @@ const workspaces = require("../controllers/workspaces");
 const { isWorkspacePublic, isLoggedIn, doesUserIdMatch } = require("../middleware");
 
 router.route("/:id")
-    .get(/*isWorkspacePublic, */workspaces.isValidWorkspace, workspaces.renderWorkspace)
-    .post(workspaces.isValidWorkspace, workspaces.addToWorkspace, workspaces.renderWorkspace)
+    .get(workspaces.isValidWorkspace, /*isWorkspacePublic, isLoggedIn, doesUserIdMatch, */workspaces.renderWorkspace)
+    .post(workspaces.isValidWorkspace, /*isWorkspacePublic, isLoggedIn, doesUserIdMatch, */workspaces.addToWorkspace, workspaces.renderWorkspace)
 
 module.exports = router;

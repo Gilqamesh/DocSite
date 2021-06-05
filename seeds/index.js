@@ -29,27 +29,27 @@ const seedDB = async () => {
     });
     const documents = [
         new Document({
-            name: "First doc",
+            filename: "First doc",
             content: "I'm a document in the first directory"
         }),
         new Document({
-            name: "Second doc",
+            filename: "Second doc",
             content: "I'm a document in the first subdirectory"
         }),
         new Document({
-            name: "Third doc",
+            filename: "Third doc",
             content: "random text in workspace"
         }),
         new Document({
-            name: "Forth doc",
+            filename: "Forth doc",
             content: "another random text in workspace"
         }),
         new Document({
-            name: "Fifth doc",
+            filename: "Fifth doc",
             content: "Top dir / Second doc"
         }),
         new Document({
-            name: "Sixth doc",
+            filename: "Sixth doc",
             content: "I'm first doc in top dir / first subdir / first dir"
         })
     ];
