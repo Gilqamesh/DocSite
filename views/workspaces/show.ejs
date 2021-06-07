@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="/stylesheets/showWorkspace.css">
 
 <% let toggleId = -1; %>
+<% let docToggleId = -1; %>
 
 <div class="container-fluid">
     <div class="row align-items-start" id="wrapper">
@@ -25,12 +26,25 @@
                     <ul class="list-group mb-3"> 
                     <% for (let doc of workspace.documents) { %>
                         <li class="list-group-item">
+                            <div class="dropdown">
                             <form action="" method="POST">
-                                <button class="btn btnDoc mb-1">
-                                    <%= doc.filename %>
-                                    <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%= doc.filename %>">
+                                <button class="btn btnDoc" id="docToggleId-<%=++docToggleId%>"
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <%= doc.filename %>
+                                        <input name="getDoc[<%=doc._id%>]" type="hidden">
                                 </button>
                             </form>
+                            <div class="dropdown-menu" aria-labelledby="docToggleId-<%=docToggleId%>">
+                                <form action="" method="POST" class="dropdown-item">
+                                    <div class="input-group">
+                                        <button>
+                                            Delete document
+                                            <input name="docDel[<%=doc._id%>]" type="hidden">
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            </div>
                         </li>
                     <% } %> 
                     </ul>
@@ -49,7 +63,6 @@
                     </form>
                     <ul class="list-group">
                     <% workspace.directories.forEach(dir => { %>
-                        <!-- !!!!!! CHANGING THIS BUTTON !!!!!! -->
                         <div class="dropdown">
                             <button class="btn btnDir mb-1" id="toggleId-<%=++toggleId%>"
                                 type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
@@ -72,6 +85,14 @@
                                         <button class="btn" id="button-addon2">Create dir</button>
                                     </div>
                                 </form>
+                                <hr>
+                                <form class="dropdown-item" action="" method="POST">
+                                    <div class="input-group">
+                                        <button class="btn btn-danger form-control" style="text-align: center;">Delete dir</button>
+                                        <input type="hidden" name="dirDel[<%=dir._id%>]" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                                        <input type="hidden" name="type" value="dir">
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         <div class="collapse" id="divId-<%=toggleId%>">
@@ -85,12 +106,25 @@
                                             <ul class="list-group">
                                             <% for (let doc of dir.documents) { %>
                                                 <li class="list-group-item mb-1">
-                                                    <form action="" method="POST">
-                                                        <button class="btn btnDoc">
-                                                            <%= doc.filename %>
-                                                            <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%= doc.filename %>">
-                                                        </button>
-                                                    </form>
+                                                    <div class="dropdown">
+                                                        <form action="" method="POST">
+                                                            <button class="btn btnDoc" id="docToggleId-<%=++docToggleId%>"
+                                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <%= doc.filename %>
+                                                                    <input name="getDoc[<%=doc._id%>]" type="hidden">
+                                                            </button>
+                                                        </form>
+                                                        <div class="dropdown-menu" aria-labelledby="docToggleId-<%=docToggleId%>">
+                                                            <form action="" method="POST" class="dropdown-item">
+                                                                <div class="input-group">
+                                                                    <button>
+                                                                        Delete document
+                                                                        <input name="docDel[<%=doc._id%>]" type="hidden">
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                 </li>
                                             <% } %>
                                             </ul>
@@ -126,6 +160,14 @@
                                                                 <button class="btn" id="button-addon2">Create dir</button>
                                                             </div>
                                                         </form>
+                                                        <hr>
+                                                        <form class="dropdown-item" action="" method="POST">
+                                                            <div class="input-group">
+                                                                <button class="btn btn-danger form-control" style="text-align: center;">Delete dir</button>
+                                                                <input type="hidden" name="dirDel[<%=subdir._id%>]" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                                                                <input type="hidden" name="type" value="subdir">
+                                                            </div>
+                                                        </form>
                                                     </div>
                                                 </div>
                                                 <div class="collapse" id="divId-<%=toggleId%>">
@@ -137,12 +179,25 @@
                                                                     <ul class="list-group">
                                                                     <% for (let doc of subdir.documents) { %>
                                                                         <li class="list-group-item doc-class">
-                                                                            <form action="" method="POST">
-                                                                                <button class="btn btnDoc mb-1">
-                                                                                    <%=doc.filename%>
-                                                                                    <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%=doc.filename%>">
-                                                                                </button>
-                                                                            </form>
+                                                                            <div class="dropdown">
+                                                                                <form action="" method="POST">
+                                                                                    <button class="btn btnDoc" id="docToggleId-<%=++docToggleId%>"
+                                                                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                                            <%=doc.filename%>
+                                                                                            <input name="getDoc[<%=doc._id%>]" type="hidden">
+                                                                                    </button>
+                                                                                </form>
+                                                                            </div>
+                                                                            <div class="dropdown-menu" aria-labelledby="docToggleId-<%=docToggleId%>">
+                                                                                <form action="" method="POST" class="dropdown-item">
+                                                                                    <div class="input-group">
+                                                                                        <button>
+                                                                                            Delete document
+                                                                                            <input name="docDel[<%=doc._id%>]" type="hidden">
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </form>
+                                                                            </div>
                                                                         </li>
                                                                     <% } %>
                                                                     </ul>
@@ -176,6 +231,14 @@
                                                                                     <input type="hidden" name="type" value="subdir">
                                                                                     <input type="hidden" name="id" value="<%=dir._id%>">
                                                                                     <button class="btn" id="button-addon2">Create dir</button>
+                                                                                </div>
+                                                                            </form>
+                                                                            <hr>
+                                                                            <form class="dropdown-item" action="" method="POST">
+                                                                                <div class="input-group">
+                                                                                    <button class="btn btn-danger form-control" style="text-align: center;">Delete dir</button>
+                                                                                    <input type="hidden" name="dirDel[<%=dir._id%>]" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                                                                                    <input type="hidden" name="type" value="dir">
                                                                                 </div>
                                                                             </form>
                                                                         </div>
@@ -268,6 +331,7 @@
             }
         }
     }
+    const allDocBtns = document.querySelectorAll(".dropdown > form > button");
     if (!document.cookie) {
         for (let i = 0; i <= <%=toggleId%>; i++) {
             const btn = document.getElementById(`toggleId-${i}`);
@@ -315,8 +379,12 @@
                 divBtn.classList.remove("show");
             }
         }
-        if (e.target.localName === "button" && e.target.id.slice(0, 8) === "toggleId") {
-            showCustomMenu(e.target);
+        if (e.target.localName === "button") {
+            if (e.target.id.slice(0, 8) === "toggleId") {
+                showCustomMenu(e.target);
+            } else if (e.target.id.slice(0, 11) === "docToggleId") {
+                showDocCustomMenu(e.target);
+            }
         }
         return false;     // cancel default menu
     }
@@ -338,6 +406,18 @@
             // button.classList.remove("show");
             div.classList.add("show");
             //button.click()
+        }
+    }
+    const showDocCustomMenu = function (target) {
+        const id = target.id;
+        const button = document.getElementById(`${id}`);
+        const div = button.parentElement.nextElementSibling;
+        if (!div.classList.contains("show")) {
+            div.classList.add("show");
+            button.ariaExpanded = true;
+        } else {
+            div.classList.remove("show");
+            button.ariaExpanded = false;
         }
     }
     function rightClick(element) {

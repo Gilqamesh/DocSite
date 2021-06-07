@@ -19,8 +19,6 @@ const MongoStore = require("connect-mongo");
 
 // constant definitions
 const port = process.env.PORT || 3000;
-// CHANGE THIS BACK LATER IF USING AN ONLINE DB (CLOUDINARY)
-// const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/doc-site";
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/doc-site";
 const secret = process.env.SECRET || "thisshouldbeabettersecret";
 

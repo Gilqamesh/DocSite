@@ -29,6 +29,7 @@ module.exports = {
     }),
     addToWorkspace: catchAsync(async (req, res, next) => {
         const input = req.body;
+        const workspace = await Workspace.findById(req.params.id);
         if (input.hasOwnProperty("docName")) {
             const docName = input["docName"];
             if (!docName) {
@@ -38,14 +39,10 @@ module.exports = {
             }
             const tmpobj = tmp.fileSync();
             await fs.appendFile(tmpobj.name, " ", () => { });
-            let url = "";
-            const workspace = await Workspace.findById(req.params.id);
-            await cloudinary.cloudinary.uploader.upload(tmpobj.name, {
+            const url = (await cloudinary.cloudinary.uploader.upload(tmpobj.name, {
                 resource_type: "auto",
-                public_id: `docsite/${req.user._id}/${workspace.name}/${docName}`
-            }, (e, r) => {
-                url += r.url;
-            });
+                public_id: `docsite/${req.user.username}/${workspace.name}/${docName}`
+            })).url;
             const newDoc = new Document({
                 filename: docName,
                 url,
@@ -53,7 +50,6 @@ module.exports = {
             const parentId = input["id"];
             switch (input["type"]) {
                 case "workspace":
-                    let workspace = await Workspace.findById(parentId);
                     workspace.documents.push(newDoc);
                     await workspace.save();
                     break;
@@ -76,24 +72,22 @@ module.exports = {
             }
             const tmpobj = tmp.fileSync();
             await fs.appendFile(tmpobj.name, input["contentUpdate"], () => { });
-            let url = "";
-            await cloudinary.cloudinary.uploader.upload(tmpobj.name, {
+            const url = (await cloudinary.cloudinary.uploader.upload(tmpobj.name, {
                 resource_type: "auto",
-                public_id: `docsite/${req.user._id}/${workspace.name}/${req.session.currFn}`
-            }, (e, r) => {
-                url += r.url;
-            });
+                public_id: `docsite/${req.user.username}/${workspace.name}/${req.session.currFn}`
+            })).url;
             req.session.currUrl = url;
             req.session.currContent = input["contentUpdate"];
             await Document.findOneAndUpdate({ filename: req.session.currFn }, { url });
             req.flash("success", "Successfully saved file.");
-        } else if (input.hasOwnProperty("docUrl")) {
-            const docUrl = Object.keys(input["docUrl"])[0];
-            const content = await axios.get(docUrl);
-            if (!content) {
-                req.flash("error", "Document has been deleted from the database.");
+        } else if (input.hasOwnProperty("getDoc")) {
+            const doc = await Document.findById(Object.keys(input["getDoc"])[0]);
+            if (!doc) {
+                req.flash("error", "Document does not exist.");
                 return (next);
             }
+            const docUrl = doc.url;
+            const content = await axios.get(docUrl);
             req.session.currContent = content.data;
             req.session.currUrl = docUrl;
             req.session.currFn = (await Document.findOne({ url: docUrl })).filename;
@@ -110,7 +104,6 @@ module.exports = {
                     newDir = new Directory({
                         name: dirName
                     });
-                    let workspace = await Workspace.findById(parentId);
                     workspace.directories.push(newDir);
                     await workspace.save();
                     break;
@@ -132,12 +125,53 @@ module.exports = {
                     break;
             }
             await newDir.save();
+        } else if (input.hasOwnProperty("dirDel")) {
+            let dir;
+            switch (input["type"]) {
+                case "workspace":
+                    dir = await Directory.findById(Object.keys(input["dirDel"])[0]);
+                    if (!dir) break;
+                    await deleteResources(dir, 1, `docsite/${req.user.username}/${workspace.name}/`);
+                    await Workspace.findOneAndUpdate({ _id: workspace._id }, { $pull: { directories: dir._id } });
+                    await Directory.deleteOne({ _id: dir._id });
+                    break;
+                case "dir":
+                    dir = await Directory.findById(Object.keys(input["dirDel"])[0]);
+                    if (!dir) break;
+                    await deleteResources(dir, 1, `docsite/${req.user.username}/${workspace.name}/`);
+                    await Subdirectory.findOneAndUpdate({ subdirectories: { $in: dir._id } }, { $pull: { subdirectories: dir._id } });
+                    await Directory.deleteOne({ _id: dir._id });
+                    break;
+                case "subdir":
+                    dir = await Subdirectory.findById(Object.keys(input["dirDel"])[0]);
+                    if (!dir) break;
+                    await deleteResources(dir, 0, `docsite/${req.user.username}/${workspace.name}/`);
+                    await Directory.findOneAndUpdate({ subdirectories: { $in: dir._id } }, { $pull: { subdirectories: dir._id } });
+                    await Subdirectory.deleteOne({ _id: dir._id });
+                    break;
+            }
+            if (!dir) {
+                req.flash("error", "Directory does not exist.");
+                return (next);
+            }
+        } else if (input.hasOwnProperty("docDel")) {
+            const doc = await Document.findById(Object.keys(input["docDel"])[0]);
+            if (!doc) {
+                req.flash("error", "Document does not exist.");
+                return (next);
+            }
+            await cloudinary.cloudinary.uploader.destroy(`docsite/${req.user.username}/${workspace.name}/${doc.filename}`, {
+                resource_type: "raw"
+            });
+            // - NEED TO PULL FROM WORKSPACE/DIR/SUBDIR BEFORE DELETING
+            // - NEED TO ADD THE FORM TO ALL BUTTONS
+            await Document.deleteOne({ _id: doc._id });
+            req.flash("success", "Successfully deleted document");
         }
         next();
     }),
     newWorkspace: catchAsync(async (req, res, next) => {
         const { name } = req.body;
-        console.log(req.user._id);
         const workspace = new Workspace({
             name,
             author: req.user._id
@@ -173,5 +207,40 @@ const populateWorkspace = async function (workspace, id) {
     for (let directory of workspace.directories) {
         let queryDir = Directory.findById(directory._id);
         await populateDirectory(queryDir, directory);
+    }
+}
+
+const deleteResources = async function (dir, isItDir, pathPrefix) {
+    if (dir.documents.length) {
+        for (let docId of dir.documents) {
+            const doc = await Document.findById(docId);
+            if (isItDir) {
+                await Directory.findOneAndUpdate({ _id: dir._id }, { $pull: { documents: docId } });
+            } else {
+                await Subdirectory.findOneAndUpdate({ _id: dir._id }, { $pull: { documents: docId } });
+            }
+            await cloudinary.cloudinary.uploader.destroy(pathPrefix + `${doc.filename}`, {
+                resource_type: "raw"
+            });
+            await Document.deleteOne({ _id: docId })
+        }
+    }
+    if (dir.subdirectories.length) {
+        for (let subdirId of dir.subdirectories) {
+            let subdir;
+            if (isItDir) {
+                subdir = await Subdirectory.findById(subdirId);
+            } else {
+                subdir = await Directory.findById(subdirId);
+            }
+            deleteResources(subdir, isItDir ? 0 : 1, pathPrefix);
+            if (isItDir) {
+                await Directory.findOneAndUpdate({ _id: dir._id }, { $pull: { subdirectories: subdir._id } });
+                await Subdirectory.deleteOne({ _id: subdir._id });
+            } else {
+                await Subdirectory.findOneAndUpdate({ _id: dir._id }, { $pull: { subdirectories: subdir._id } });
+                await Directory.deleteOne({ _id: subdir._id });
+            }
+        }
     }
 }
