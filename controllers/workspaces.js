@@ -31,6 +31,11 @@ module.exports = {
         const input = req.body;
         if (input.hasOwnProperty("docName")) {
             const docName = input["docName"];
+            if (!docName) {
+                // doesn't work without refresh, why?..
+                req.flash("error", "Document needs to have a name");
+                return next()
+            }
             const tmpobj = tmp.fileSync();
             await fs.appendFile(tmpobj.name, " ", () => { });
             let url = "";
@@ -67,7 +72,7 @@ module.exports = {
         } else if (input.hasOwnProperty("contentUpdate")) {
             if (!req.session.currUrl) {
                 req.flash("error", "No file opened");
-                return next()
+                return next();
             }
             const tmpobj = tmp.fileSync();
             await fs.appendFile(tmpobj.name, input["contentUpdate"], () => { });
@@ -85,11 +90,19 @@ module.exports = {
         } else if (input.hasOwnProperty("docUrl")) {
             const docUrl = Object.keys(input["docUrl"])[0];
             const content = await axios.get(docUrl);
+            if (!content) {
+                req.flash("error", "Document has been deleted from the database.");
+                return (next);
+            }
             req.session.currContent = content.data;
             req.session.currUrl = docUrl;
             req.session.currFn = (await Document.findOne({ url: docUrl })).filename;
         } else if (input.hasOwnProperty("dirName")) {
             const dirName = input["dirName"];
+            if (!dirName) {
+                req.flash("error", "Directory needs to have a name");
+                return next();
+            }
             const parentId = input["id"];
             let newDir;
             switch (input["type"]) {

@@ -7,210 +7,226 @@
     <div class="row align-items-start" id="wrapper">
         <!-- Directories and Documents handler menu -->
         <div class="col-2"  id="menuContainer">
-        <h1><%=workspace.name%></h1>
-        <button class="dontStyleBtn" onclick="showAll()">Show all</button>
-        <button class="dontStyleBtn" onclick="closeAll()">Close all</button>
-        <hr>
-        <ul class="list-group">
-            <li class="list-group-item">
-                <form action="" method="POST">
-                    <div class="input-group">
-                        <input id="docName-<%=toggleId%>" type="text" name="docName" class="form-control" aria-describedby="button-addon2">
-                        <input type="hidden" name="id" value="<%=workspace._id%>">
-                        <input type="hidden" name="type" value="workspace">
-                        <button class="btn" id="button-addon2">Create doc</button>
-                    </div>
-                </form>
-            
-                <ul class="list-group mb-3"> 
-                <% for (let doc of workspace.documents) { %>
-                    <li class="list-group-item">
-                        <form action="" method="POST">
-                            <button class="btn btn-success mb-1"><%= doc.filename %>
-                                <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%= doc.filename %>">
-                            </button>
-                        </form>
-                    </li>
-                <% } %> 
-                </ul>
-            </li>
-        </ul>
-        <% let calls = 0; %>
-        <ul class="list-group">
-            <li class="list-group-item">
-                <form action="" method="POST">
-                    <div class="input-group">
-                        <input type="text" name="dirName" class="form-control" aria-describedby="button-addon2">
-                        <input type="hidden" name="type" value="workspace">
-                        <input type="hidden" name="id" value="<%=workspace._id%>">
-                        <button class="btn" id="button-addon2">Create dir</button>
-                    </div>
-                </form>
-                <ul class="list-group">
-                <% workspace.directories.forEach(dir => { %>
-                    <button class="btn btn-warning mb-1" id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                        <%=dir.name%>
-                    </button>
-                    <div class="collapse" id="divId-<%=toggleId%>">
+            <h1><%=workspace.name%></h1>
+            <button class="dontStyleBtn" onclick="showAll()">Show all</button>
+            <button class="dontStyleBtn" onclick="closeAll()">Close all</button>
+            <hr>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <form action="" method="POST">
+                        <div class="input-group">
+                            <input id="docName-<%=toggleId%>" type="text" name="docName" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                            <input type="hidden" name="id" value="<%=workspace._id%>">
+                            <input type="hidden" name="type" value="workspace">
+                            <button class="btn" id="button-addon2">Create doc</button>
+                        </div>
+                    </form>
+                
+                    <ul class="list-group mb-3"> 
+                    <% for (let doc of workspace.documents) { %>
                         <li class="list-group-item">
-                        <!-- Function that recursively prints documents and subdirectories, argument is a Directory -->
-                        <% const printDir = dir => { %>
-                            <!-- print out the Directory's (of type Directory) documents -->
-                            <ul class="list-group" style="margin-left: 0.9em">
-                                <li class="list-group-item">
-                                    <form action="" method="POST">
-                                        <div class="input-group">
-                                            <input type="text" name="docName" class="form-control" aria-describedby="button-addon2">
-                                            <input type="hidden" name="type" value="dir">
-                                            <input type="hidden" name="id" value="<%=dir._id%>">
-                                            <button class="btn" id="button-addon2">Create doc</button>
-                                        </div>
-                                    </form>
-                                    <% if (dir.documents.length) { %>
-                                        <ul class="list-group mb-3">
-                                        <% for (let doc of dir.documents) { %>
-                                            <li class="list-group-item">
-                                                <form action="" method="POST">
-                                                    <button class="btn btn-success mb-1"><%= doc.filename %>
-                                                        <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%= doc.filename %>">
-                                                    </button>
-                                                </form>
-                                            </li>
+                            <form action="" method="POST">
+                                <button class="btn btnDoc mb-1">
+                                    <%= doc.filename %>
+                                    <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%= doc.filename %>">
+                                </button>
+                            </form>
+                        </li>
+                    <% } %> 
+                    </ul>
+                </li>
+            </ul>
+            <% let calls = 0; %>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <form action="" method="POST">
+                        <div class="input-group">
+                            <input type="text" name="dirName" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                            <input type="hidden" name="type" value="workspace">
+                            <input type="hidden" name="id" value="<%=workspace._id%>">
+                            <button class="btn" id="button-addon2">Create dir</button>
+                        </div>
+                    </form>
+                    <ul class="list-group">
+                    <% workspace.directories.forEach(dir => { %>
+                        <!-- !!!!!! CHANGING THIS BUTTON !!!!!! -->
+                        <div class="dropdown">
+                            <button class="btn btnDir mb-1" id="toggleId-<%=++toggleId%>"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                    <%=dir.name%>
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="toggleId-<%=toggleId%>">
+                                <form class="dropdown-item" action="" method="POST">
+                                    <div class="input-group">
+                                        <input type="text" name="docName" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                                        <input type="hidden" name="type" value="dir">
+                                        <input type="hidden" name="id" value="<%=dir._id%>">
+                                        <button class="btn" id="button-addon2">Create doc</button>
+                                    </div>
+                                </form>
+                                <form class="dropdown-item" action="" method="POST">
+                                    <div class="input-group">
+                                        <input type="text" name="dirName" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                                        <input type="hidden" name="type" value="subdir">
+                                        <input type="hidden" name="id" value="<%=dir._id%>">
+                                        <button class="btn" id="button-addon2">Create dir</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="collapse" id="divId-<%=toggleId%>">
+                            <li class="list-group-item">
+                            <!-- Function that recursively prints documents and subdirectories, argument is a Directory -->
+                            <% const printDir = dir => { %>
+                                <!-- print out the Directory's (of type Directory) documents -->
+                                <ul class="list-group" id="fileMargin">
+                                    <li class="list-group-item">
+                                        <% if (dir.documents.length) { %>
+                                            <ul class="list-group">
+                                            <% for (let doc of dir.documents) { %>
+                                                <li class="list-group-item mb-1">
+                                                    <form action="" method="POST">
+                                                        <button class="btn btnDoc">
+                                                            <%= doc.filename %>
+                                                            <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%= doc.filename %>">
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            <% } %>
+                                            </ul>
                                         <% } %>
-                                        </ul>
-                                    <% } %>
-                                </li>
-                            </ul>
-                            <!-- print out the Directory's (of type Directory) subdirectories (of type Subdirectory)-->
-                            <ul class="list-group" style="margin-left: 0.9em">
-                                <li class="list-group-item">
-                                    <form action="" method="POST">
-                                        <div class="input-group">
-                                            <input type="text" name="dirName" class="form-control" aria-describedby="button-addon2">
-                                            <input type="hidden" name="type" value="subdir">
-                                            <input type="hidden" name="id" value="<%=dir._id%>">
-                                            <button class="btn" id="button-addon2">Create dir</button>
-                                        </div>
-                                    </form>
-                                    <% if (dir.subdirectories.length) { %>
-                                        <!-- iterating over the subdirectories (of type Subdirectory) -->
-                                        <ul class="list-group">
-                                        <% dir.subdirectories.forEach(subdir => { %>
-                                            <button class="btn btn-warning mb-1" id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                                                <%=subdir.name%>
-                                            </button>
-                                            <div class="collapse" id="divId-<%=toggleId%>">
-                                                <li class="list-group-item">
-                                                <!-- print out the documents in each subdirectory -->
-                                                <ul class="list-group" style="margin-left: 0.9em">
-                                                    <li class="list-group-item">
-                                                        <form action="" method="POST">
+                                    </li>
+                                </ul>
+                                <!-- print out the Directory's (of type Directory) subdirectories (of type Subdirectory)-->
+                                <ul class="list-group" id="fileMargin">
+                                    <li class="list-group-item">
+                                        <% if (dir.subdirectories.length) { %>
+                                            <!-- iterating over the subdirectories (of type Subdirectory) -->
+                                            <ul class="list-group">
+                                            <% dir.subdirectories.forEach(subdir => { %>
+                                                <div class="dropdown">
+                                                    <button class="btn btnDir mb-1" id="toggleId-<%=++toggleId%>"
+                                                        type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                            <%=subdir.name%>
+                                                    </button>
+                                                    <div class="dropdown-menu" aria-labelledby="toggleId-<%=toggleId%>">
+                                                        <form class="dropdown-item" action="" method="POST">
                                                             <div class="input-group">
-                                                                <input type="text" name="docName" class="form-control" aria-describedby="button-addon2">
+                                                                <input type="text" name="docName" class="form-control" aria-describedby="button-addon2" autocomplete="off">
                                                                 <input type="hidden" name="type" value="subdir">
                                                                 <input type="hidden" name="id" value="<%=subdir._id%>">
                                                                 <button class="btn" id="button-addon2">Create doc</button>
                                                             </div>
                                                         </form>
-                                                        <% if (subdir.documents.length) { %>
-                                                                <ul class="list-group mb-3">
-                                                                <% for (let doc of subdir.documents) { %>
-                                                                    <li class="list-group-item doc-class">
-                                                                        <form action="" method="POST">
-                                                                            <button class="btn btn-success mb-1"><%=doc.filename%>
-                                                                                <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%=doc.filename%>">
-                                                                            </button>
-                                                                        </form>
-                                                                    </li>
-                                                                <% } %>
-                                                                </ul>
-                                                        <% } %>
-                                                    </li>
-                                                </ul>
-                                                <!-- print out the subdirectories (Which are going to be of model Directory) of each subdirectory -->
-                                                <ul class="list-group" style="margin-left: 0.9em">
-                                                    <li class="list-group-item">
-                                                        <!-- create new directory (of type Directory) under subdir -->
-                                                        <form action="" method="POST">
+                                                        <form class="dropdown-item" action="" method="POST">
                                                             <div class="input-group">
-                                                                <input type="text" name="dirName" class="form-control" aria-describedby="button-addon2">
+                                                                <input type="text" name="dirName" class="form-control" aria-describedby="button-addon2" autocomplete="off">
                                                                 <input type="hidden" name="type" value="dir">
                                                                 <input type="hidden" name="id" value="<%=subdir._id%>">
                                                                 <button class="btn" id="button-addon2">Create dir</button>
                                                             </div>
                                                         </form>
-                                                        <% if (subdir.subdirectories.length) { %>
-                                                            <ul class="list-group">
-                                                            <% subdir.subdirectories.forEach(dir => { %>
-                                                                <button class="btn btn-warning mb-1" id="toggleId-<%=++toggleId%>" onclick="toggleCookie(<%=toggleId%>)" type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
-                                                                    <%=dir.name%>
-                                                                </button>
-                                                                <div class="collapse" id="divId-<%=toggleId%>">
-                                                                    <li class="list-group-item">
-                                                                        <% printDir(dir) %>
-                                                                    </li>
-                                                                </div>
-                                                            <% }) %>
-                                                            </ul>
-                                                        <% } %> 
+                                                    </div>
+                                                </div>
+                                                <div class="collapse" id="divId-<%=toggleId%>">
+                                                    <li class="list-group-item">
+                                                    <!-- print out the documents in each subdirectory -->
+                                                    <ul class="list-group" id="fileMargin">
+                                                        <li class="list-group-item">
+                                                            <% if (subdir.documents.length) { %>
+                                                                    <ul class="list-group">
+                                                                    <% for (let doc of subdir.documents) { %>
+                                                                        <li class="list-group-item doc-class">
+                                                                            <form action="" method="POST">
+                                                                                <button class="btn btnDoc mb-1">
+                                                                                    <%=doc.filename%>
+                                                                                    <input name="docUrl[<%=doc.url%>]" type="hidden" value="<%=doc.filename%>">
+                                                                                </button>
+                                                                            </form>
+                                                                        </li>
+                                                                    <% } %>
+                                                                    </ul>
+                                                            <% } %>
+                                                        </li>
+                                                    </ul>
+                                                    <!-- print out the subdirectories (Which are going to be of model Directory) of each subdirectory -->
+                                                    <ul class="list-group" id="fileMargin">
+                                                        <li class="list-group-item">
+                                                            <!-- create new directory (of type Directory) under subdir -->
+                                                            <% if (subdir.subdirectories.length) { %>
+                                                                <ul class="list-group">
+                                                                <% subdir.subdirectories.forEach(dir => { %>
+                                                                    <div class="dropdown">
+                                                                        <button class="btn btnDir mb-1" id="toggleId-<%=++toggleId%>"
+                                                                            type="button" data-bs-toggle="collapse" data-bs-target="#divId-<%=toggleId%>" aria-expanded="false" aria-controls="divId-<%=toggleId%>">
+                                                                                <%=dir.name%>
+                                                                        </button>
+                                                                        <div class="dropdown-menu" aria-labelledby="toggleId-<%=toggleId%>">
+                                                                            <form class="dropdown-item" action="" method="POST">
+                                                                                <div class="input-group">
+                                                                                    <input type="text" name="docName" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                                                                                    <input type="hidden" name="type" value="dir">
+                                                                                    <input type="hidden" name="id" value="<%=dir._id%>">
+                                                                                    <button class="btn" id="button-addon2">Create doc</button>
+                                                                                </div>
+                                                                            </form>
+                                                                            <form class="dropdown-item" action="" method="POST">
+                                                                                <div class="input-group">
+                                                                                    <input type="text" name="dirName" class="form-control" aria-describedby="button-addon2" autocomplete="off">
+                                                                                    <input type="hidden" name="type" value="subdir">
+                                                                                    <input type="hidden" name="id" value="<%=dir._id%>">
+                                                                                    <button class="btn" id="button-addon2">Create dir</button>
+                                                                                </div>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="collapse" id="divId-<%=toggleId%>">
+                                                                        <li class="list-group-item">
+                                                                            <% printDir(dir) %>
+                                                                        </li>
+                                                                    </div>
+                                                                <% }) %>
+                                                                </ul>
+                                                            <% } %> 
+                                                        </li>
+                                                    </ul>
                                                     </li>
-                                                </ul>
-                                                </li>
-                                            </div>
-                                        <% }) %>
-                                        </ul>
-                                    <% } %>
-                                </li>
-                            </ul>
-                        <% } %>
-                        <% printDir(dir) %> 
-                        </li>
+                                                </div>
+                                            <% }) %>
+                                            </ul>
+                                        <% } %>
+                                    </li>
+                                </ul>
+                            <% } %>
+                            <% printDir(dir) %> 
+                            </li>
+                        </div>
+                    <% }) %>  
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <!-- Documentum content -->
+        <div class="col" id="contentContainer">
+            <div class="card">
+                <div class="card-body" id="contentCard">
+                    <div class="card-title mb-3">
+                        <h1><%=currFn%></h1>
                     </div>
-                <% }) %>  
-                </ul>
-            </li>
-        </ul>
-    </div>
-    <!-- Documentum content -->
-    <div class="col-8">
-        
-        <div class="card">
-            <div class="card-body">
-                <div class="card-title mb-3">
-                    <h1><%=currFn%></h1>
-                </div>
-                <div class="card-text mb-3">
-                    <form action="" method="POST">
-                        <textarea class="form-control mb-3" name="contentUpdate" id="contentTextArea"><%=currContent%></textarea>
-                        <button class="btn">Save</button>
-                    </form>
+                    <div class="card-text mb-3">
+                        <form action="" method="POST">
+                            <textarea class="form-control mb-3" name="contentUpdate" id="contentTextArea"><%=currContent%></textarea>
+                            <button class="btn" style="color: white;">Save</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- Additional col, haven't decided about the content -->
     </div>
-    <!-- Haven't decided yet -->
-    <div class="col-2">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente nam exercitationem esse dignissimos neque magni dolorem dolor totam ratione cum voluptatem ab, minus, inventore tempore dolore rerum sequi libero in?
-        Cupiditate earum repellat consequuntur assumenda enim ipsam quo, alias vero debitis quis odit nostrum pariatur? Accusantium tempore incidunt, quaerat voluptates ad voluptatibus cum repellendus exercitationem saepe commodi ab distinctio ea.
-        Eum aliquam vitae ad iste! Quod quia voluptatibus, consequuntur eveniet quis dolore fugit, similique mollitia expedita adipisci sed illum impedit eos harum placeat, pariatur dicta illo iusto ratione et? Recusandae.
-        Harum enim voluptatem, animi dolorum id, aliquid eaque atque nihil explicabo facere non, eum fuga similique ipsum magnam alias sit magni quia eos doloremque tempora ipsa. Optio ad repellendus tempora.
-        Molestiae, at praesentium blanditiis amet soluta quibusdam libero ullam vitae excepturi, aliquam alias sequi repudiandae, vero voluptate a nesciunt ducimus harum perspiciatis rerum illum placeat eius itaque accusantium. Blanditiis, fuga?
-        Dolorum, sunt saepe, repudiandae libero aliquam sapiente ut facere, similique itaque natus numquam voluptate quibusdam? Omnis dicta nostrum nobis nihil, ab facilis possimus labore cum quo sunt aliquid veniam saepe.
-        Expedita corporis recusandae non quas maxime magni reprehenderit dolorem eveniet voluptates vel exercitationem sit fugit illum eaque, minima molestias earum cupiditate. Maxime magnam rem molestiae incidunt excepturi perferendis, dolores maiores.
-        Ullam quod corporis et adipisci ut magni nostrum voluptatum quis odio est, distinctio aperiam molestias rerum porro, at quia, ducimus voluptates placeat! Eius molestiae maxime tenetur, quo quasi neque enim.
-        Porro, fuga ipsam ratione, a autem exercitationem eum molestias omnis adipisci ab quod quo tempore deserunt accusamus similique commodi voluptatem dignissimos labore dolorem odio velit architecto quam tenetur. Quae, architecto.
-        Sequi quam enim cupiditate omnis, ipsum incidunt vitae, soluta suscipit nesciunt tenetur magnam tempora perspiciatis assumenda veniam impedit, eveniet numquam architecto nostrum amet similique voluptates. Animi voluptatum a id corrupti?
-    </div>
-</div>
 </div>
 
 <script>
-    if (!document.cookie) {
-        for (let i = 0; i <= <%=toggleId%>; i++) {
-            const btn = document.getElementById(`toggleId-${i}`);
-            document.cookie = `toggle${i}=false; `;
-        }
-    }
     window.onload = () => {
         for (let i = 0; i <= <%=toggleId%>; i++) {
             const div = document.getElementById(`divId-${i}`);
@@ -224,9 +240,45 @@
                 div.classList.remove("show");
             }
         }
+        updateBtnIcons();
+        allBtnDoc = document.querySelectorAll(".btnDoc");
+        for (let btnDoc of allBtnDoc) {
+            btnDoc.innerHTML = '<img src="/icons/file-earmark.svg">'.concat(btnDoc.innerHTML);
+        }
+    }
+    const navBarBtn = document.getElementById("navbarDarkDropdownMenuLink");
+    const allButtons = document.querySelectorAll(".dropdown > button");
+    for (let btn of allButtons) {
+        if (btn !== navBarBtn) {
+            btn.onclick = () => {
+                const div = btn.nextElementSibling;
+                if (btn.getAttribute("data-bs-toggle") === "dropdown") {
+                    //button.classList.remove("show");
+                    //const divBtn = btn.nextSibling.nextSibling;
+                    
+                    //div.classList.remove("show");
+                    btn.classList.remove("dropdown-toggle");
+                    btn.setAttribute("data-bs-toggle", "collapse");
+                    //toggleCookie();
+                } 
+                div.classList.remove("show");
+                btn.click();
+                toggleCookie(parseInt(btn.id.slice(9)));
+                updateBtnIcons();
+            }
+        }
+    }
+    if (!document.cookie) {
+        for (let i = 0; i <= <%=toggleId%>; i++) {
+            const btn = document.getElementById(`toggleId-${i}`);
+            document.cookie = `toggle${i}=false; `;
+        }
     }
     const toggleCookie = (toggleId) => {
         const button = document.getElementById(`toggleId-${toggleId}`);
+        // button.classList.remove("dropdown-toggle");
+        // button.setAttribute("data-bs-toggle", "collapse");
+        // button.click();
         document.cookie = `toggle${toggleId}=${button.ariaExpanded === "true" ? "true" : "false"}`;
     }
     const showAll = () => {
@@ -250,5 +302,100 @@
     // Blocks the popup on page refresh for form resubmission
     if (window.history.replaceState) {
         window.history.replaceState( null, null, window.location.href );
+    }
+    window.oncontextmenu = function (e) {
+        const button = document.getElementById(`${e.target.id}`);
+        for (let btn of allButtons) {
+            if (btn !== button && btn !== navBarBtn && btn.getAttribute("data-bs-toggle") === "dropdown") {
+                btn.classList.remove("dropdown-toggle");
+                btn.setAttribute("data-bs-toggle", "collapse");
+                //button.classList.remove("show");
+                // const divBtn = btn.nextSibling.nextSibling;
+                const divBtn = btn.nextElementSibling;
+                divBtn.classList.remove("show");
+            }
+        }
+        if (e.target.localName === "button" && e.target.id.slice(0, 8) === "toggleId") {
+            showCustomMenu(e.target);
+        }
+        return false;     // cancel default menu
+    }
+    const showCustomMenu = function (target) {
+        const id = target.id;
+        const button = document.getElementById(`${id}`);
+        //const div = button.nextSibling.nextSibling;
+        const div = button.nextElementSibling;
+        if (button.getAttribute("data-bs-toggle") === "dropdown") {
+            button.classList.remove("dropdown-toggle");
+            button.setAttribute("data-bs-toggle", "collapse");
+            //button.classList.remove("show");
+            div.classList.remove("show");
+            //button.click();
+            //div.setAttribute("style", "display: none;");
+        } else {
+            button.classList.add("dropdown-toggle");
+            button.setAttribute("data-bs-toggle", "dropdown");
+            // button.classList.remove("show");
+            div.classList.add("show");
+            //button.click()
+        }
+    }
+    function rightClick(element) {
+        const evt = element.ownerDocument.createEvent('MouseEvents');
+        const RIGHT_CLICK_BUTTON_CODE = 2; // the same for FF and IE
+        evt.initMouseEvent('click', true, true,
+        element.ownerDocument.defaultView, 1, 0, 0, 0, 0, false,
+        false, false, false, RIGHT_CLICK_BUTTON_CODE, null);
+        if (document.createEventObject) {
+            // dispatch for IE
+            return element.fireEvent('onclick', evt)
+        }
+        else {
+            // dispatch for firefox + others
+            return !element.dispatchEvent(evt);
+        }
+    }
+    const menuContainer = document.getElementById("menuContainer");
+    menuContainer.onmouseleave = () => {
+        for (let btn of allButtons) {
+            if (btn !== navBarBtn && btn.getAttribute("data-bs-toggle") === "dropdown") {
+                btn.classList.remove("dropdown-toggle");
+                btn.setAttribute("data-bs-toggle", "collapse");
+                //button.classList.remove("show");
+                //const divBtn = btn.nextSibling.nextSibling;
+                const divBtn = btn.nextElementSibling;
+                divBtn.classList.remove("show");
+            }
+        }
+    }
+    const updateBtnIcons = (btn) => {
+        if (!btn) {
+            const allBtnDir = document.querySelectorAll(".btnDir");
+            for (let btnDir of allBtnDir) {
+                if (btnDir.innerHTML.includes('<img src="/icons/caret-right-fill.svg">')) {
+                    btnDir.innerHTML = btnDir.innerHTML.replace('<img src="/icons/caret-right-fill.svg">', '')
+                }
+                if (btnDir.innerHTML.includes('<img src="/icons/caret-down-fill.svg">')) {
+                    btnDir.innerHTML = btnDir.innerHTML.replace('<img src="/icons/caret-down-fill.svg">', '')
+                }
+                if (btnDir.attributes["aria-expanded"].value === "false") {
+                    btnDir.innerHTML = '<img src="/icons/caret-right-fill.svg">'.concat(btnDir.innerHTML);
+                } else {
+                    btnDir.innerHTML = '<img src="/icons/caret-down-fill.svg">'.concat(btnDir.innerHTML);
+                }
+            }
+        } else {
+            if (btn.innerHTML.includes('<img src="/icons/caret-right-fill.svg">')) {
+                btnDir.innerHTML = btn.innerHTML.replace('<img src="/icons/caret-right-fill.svg">', "")
+            }
+            if (btn.innerHTML.includes('<img src="/icons/caret-down-fill.svg">')) {
+                    btnDir.innerHTML = btn.innerHTML.replace('<img src="/icons/caret-down-fill.svg">', "")
+            }
+            if (btn.attributes["aria-expanded"].value === "false") {
+                btn.innerHTML = '<img src="/icons/caret-right-fill.svg">'.concat(btn.innerHTML);
+            } else {
+                btn.innerHTML = '<img src="/icons/caret-down-fill.svg">'.concat(btn.innerHTML);
+            }
+        }
     }
 </script>

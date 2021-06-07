@@ -104,9 +104,9 @@ const deleteDB = async () => {
     await Workspace.deleteMany({});
     await User.deleteMany({});
     await Subdirectory.deleteMany({});
-    await new Workspace({
-        name: "First workspace"
-    }).save();
+    // await new Workspace({
+    //     name: "First workspace"
+    // }).save();
 }
 
 // seedDB().then(() => {

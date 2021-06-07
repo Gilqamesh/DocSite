@@ -1,9 +1,18 @@
-.card {
-    background-color: rgb(255, 255, 255);
+.bg-light {
+    background-color: rgba(30,30,30,255)!important;
+}
+
+.container-fluid {
+    background-color: rgba(30,30,30,255);
+}
+
+.container-container {
+    margin: 0px!important;
 }
 
 #contentTextArea {
-    min-height: 75.32vh;
+    /* min-height: 75.32vh; */
+    min-height: 80.32vh;
     resize: none;
     overflow-y: scroll;
 }
@@ -22,13 +31,25 @@
 }
 
 #menuContainer {
-    height: 87vh;
+    height: 92vh;
     overflow-y: scroll;
+    background-color: rgba(37,37,38,255);
+    overflow-x: hidden;
     /* background-color: grey;
     color: white; */
 }
 
+#menuContainer li {
+    background-color: rgba(37,37,38,255);
+}
+
+#menuContainer #button-addon2 {
+    background-color: white;
+}
+
+/* these are the menu directory buttons (docs and dirs) */
 #menuContainer button:not(.dontStyleBtn, #button-addon2) {
+    text-align: start;
     border: none;
     height: 100%;
     width: 100%;
@@ -41,7 +62,7 @@
 
 #menuContainer div {
     text-overflow: ellipsis;
-    overflow: hidden;
+    /* overflow: hidden; */
     white-space: nowrap;
 }
 
@@ -67,4 +88,35 @@ input.form-control {
     width: 70%;
     border: 1px solid rgb(196, 193, 193);
     border-right: none;
+}
+
+.btnDir, .btnDoc {
+    background-color: rgba(37,37,38,255);
+    color: white;
+    position: relative;
+}
+
+.btnDir:hover, .btnDoc:hover {
+    background-color: rgba(55,55,61,255);
+    color: white;
+}
+
+#fileMargin {
+    position: relative;
+    left: 0.6em;
+}
+
+#contentContainer {
+    background-color: rgba(30,30,30,255);
+    color: white;
+}
+
+#contentTextArea {
+    background-color: rgba(30,30,30,255);
+    color: white;
+}
+
+#contentCard {
+    background-color: rgba(30,30,30,255);
+    color: white;
 }

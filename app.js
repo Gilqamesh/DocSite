@@ -15,14 +15,29 @@ const path = require("path");
 const session = require("express-session");
 const flash = require("connect-flash");
 const User = require("./models/user");
+const MongoStore = require("connect-mongo");
 
 // constant definitions
 const port = process.env.PORT || 3000;
 // CHANGE THIS BACK LATER IF USING AN ONLINE DB (CLOUDINARY)
 // const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/doc-site";
-const dbUrl = "mongodb://localhost:27017/doc-site";
+const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/doc-site";
 const secret = process.env.SECRET || "thisshouldbeabettersecret";
+
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret
+    }
+})
+
+store.on("error", function (e) {
+    console.log("SESSION STORE ERROR", e);
+})
+
 const sessionConfig = {
+    store,
     name: "session",   // default is connect.sid which can be exploited if the attacker knows what to look for
     secret,
     resave: false,

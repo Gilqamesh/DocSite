@@ -1,21 +1,25 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>Make a new workspace</h1>
-<form action="/workspace/new" method="POST">
-    <label for="name">Name:</label>
-    <input class="form-control" type="text" id="name" name="name">
-    <button>Create</button>
-</form>
+<div class="container">
+    <div class="row">
+        <h1>Make a new workspace</h1>
+        <form action="/workspace/new" method="POST">
+            <label for="name">Name:</label>
+            <input class="form-control" type="text" id="name" name="name">
+            <button class="btn btn-success">Create</button>
+        </form>
 
-<hr>
+        <hr class="mt-3">
 
-<% if (workspaces && workspaces.length) { %> 
-    <h2>Available workspaces:</h2>
-    <ul class="list-group">
-    <% for (let workspace of workspaces) { %>
-        <li class="list-group-item">
-            <a href="/workspace/<%=workspace._id%>"><%=workspace.name%></a>
-        </li>
-    <% } %>
-    </ul>
-<% } %> 
+        <% if (workspaces && workspaces.length) { %> 
+            <h2>Available workspaces:</h2>
+            <ul class="list-group">
+            <% for (let workspace of workspaces) { %>
+                <li class="list-group-item">
+                    <a href="/workspace/<%=workspace._id%>"><%=workspace.name%></a>
+                </li>
+            <% } %>
+            </ul>
+        <% } %> 
+    </div>
+</div>
